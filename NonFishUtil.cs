@@ -14,5 +14,9 @@ namespace Tyfyter.Utils {
             ResizeItemArrays = null;
             return false;
         }
+        public override void SetStaticDefaults() {
+            ResizeOtherArrays();
+            ResizeOtherArrays = null;
+        }
     }
 }
