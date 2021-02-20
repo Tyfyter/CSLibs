@@ -10,6 +10,7 @@ namespace Tyfyter.Utils {
     public class BiDict<TKey, TVal> : IDictionary<TKey,TVal>{
         public readonly EqualityComparer<TKey> KeyComparer;
         public readonly EqualityComparer<TVal> ValueComparer;
+        public readonly bool AddOnSet = false;
 
         public List<Entry> Entries;
 
@@ -19,22 +20,35 @@ namespace Tyfyter.Utils {
         public int Count => Entries.Count;
         public bool IsReadOnly => false;
 
-        public BiDict(){
+        public BiDict(EqualityComparer<TKey> keyComparer = null, EqualityComparer<TVal> valueComparer = null, bool addOnSet = false) {
             Entries = new List<Entry>();
-        }
-        public BiDict(List<Entry> input, EqualityComparer<TKey> keyComparer = null, EqualityComparer<TVal> valueComparer = null) : this(){
-            Entries = input;
             KeyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
             ValueComparer = valueComparer ?? EqualityComparer<TVal>.Default;
+            AddOnSet = addOnSet;
+        }
+        public BiDict(List<Entry> input, EqualityComparer<TKey> keyComparer = null, EqualityComparer<TVal> valueComparer = null, bool addOnSet = false) : this(keyComparer, valueComparer, addOnSet){
+            Entries = input;
         }
 
         public TVal this[TKey key] {
             get => Entries[FindEntryByKey(key)].val;
-            set => Entries[FindEntryByKey(key)] = (key, value);
+            set {
+                int i = FindEntryByKey(key);
+                if(i == -1 && AddOnSet) {
+                    Add(key, value);
+                }
+                Entries[i] = (key, value);
+            }
         }
         public TKey this[TVal val] {
             get => Entries[FindEntryByValue(val)].key;
-            set => Entries[FindEntryByValue(val)] = (value, val);
+            set {
+                int i = FindEntryByValue(val);
+                if(i == -1 && AddOnSet) {
+                    Add(value, val);
+                }
+                Entries[i] = (value, val);
+            }
         }
 
         public int FindEntryByKey(TKey key) {
@@ -56,6 +70,12 @@ namespace Tyfyter.Utils {
         public bool ContainsValue(TVal value) => FindEntryByValue(value) != -1;
 
         public void Add(TKey key, TVal value) {
+            if(ContainsKey(key)) {
+                throw new ArgumentException("Cannot add duplicate key");
+            }
+            if(ContainsValue(value)) {
+                throw new ArgumentException("Cannot add duplicate value");
+            }
             Entries.Add((key, value));
         }
 
@@ -105,7 +125,7 @@ namespace Tyfyter.Utils {
         }
 
         public void Add(KeyValuePair<TKey, TVal> item) {
-            Entries.Add((item.Key, item.Value));
+            Add(item.Key, item.Value);
         }
         public void Clear() {
             Entries.Clear();
@@ -143,6 +163,14 @@ namespace Tyfyter.Utils {
                 if(i<Entries.Count-1)o+=",";
             }
             return o+"]";
+        }
+
+        public string ToSwitch() {
+            string o = "switch(){\n";
+            for(int i = 0; i < Entries.Count; i++) {
+                o+=$"case {Entries[i].key}:\nreturn {Entries[i].val}\n";
+            }
+            return o+"}";
         }
 
         public struct Entry {
