@@ -12,8 +12,15 @@ namespace Tyfyter.Utils {
             int frameX = tile.frameX % objectData.CoordinateFullWidth;
             int frameWidth = objectData.CoordinateWidth + objectData.CoordinatePadding;
             int frameY = 0;
-            for(int y = tile.frameY; y > 0; y-=objectData.CoordinateHeights[frameY] + objectData.CoordinatePadding) {
-                frameY++;
+            if(objectData.Height != 1) {
+                for(int y = tile.frameY; y > 0; y -= objectData.CoordinateHeights[frameY] + objectData.CoordinatePadding) {
+                    frameY++;
+                    frameY %= objectData.Height;
+                    if(frameY == 0 && !objectData.StyleHorizontal) {
+                        objectData = TileObjectData.GetTileData(tile.type, frameY/objectData.Height);
+                        y -= objectData.CoordinatePadding;
+                    }
+                }
             }
             return new Point(objectData.Origin.X - (frameX / frameWidth), objectData.Origin.Y - frameY);
         }
