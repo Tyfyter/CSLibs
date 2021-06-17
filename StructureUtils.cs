@@ -28,7 +28,7 @@ namespace Tyfyter.Utils {
             /// places the structure
             /// </summary>
             /// <returns>the amount of blocks changed</returns>
-            public int Place(int i, int j) {
+            public int Place(int i, int j, bool frame = true) {
                 char[] line;
                 StructureTile c;
                 Tile currentTile;
@@ -87,15 +87,18 @@ namespace Tyfyter.Utils {
                         if(c.slopeType <= 4) currentTile.slope(c.slopeType);
                         if(c.slopeType == 5) currentTile.halfBrick();
                         _setLiquid(currentTile, c.placementType);
+                        if(c.paint!=0)currentTile.color(c.paint);
                     } else {
                         currentTile.active(false);
                         _setLiquid(currentTile, c.placementType);
                     }
-					if (Main.netMode == NetmodeID.Server) {
-						NetMessage.SendTileSquare(-1, currentChange.x, currentChange.y, 1);
-                    } else {
-						WorldGen.SquareTileFrame(currentChange.x, currentChange.y);
-                    }
+                    //if(frame)try {
+					    if (Main.netMode == NetmodeID.Server) {
+						    NetMessage.SendTileSquare(-1, currentChange.x, currentChange.y, 1);
+                        } else {
+						    WorldGen.SquareTileFrame(currentChange.x, currentChange.y);
+                        }
+                    //} catch(IndexOutOfRangeException) { }
                     changedTilesCount++;
                 }
                 while(changedMultiTiles.Count>0) {
@@ -150,31 +153,28 @@ namespace Tyfyter.Utils {
             public readonly StructureTilePlacementType placementType;
             public readonly byte slopeType;
             public readonly int style;
+            public readonly byte paint;
             public StructureTile(ushort type) {
                 this.type = type;
                 placementType = RequiredTile;
                 slopeType = SlopeID.None;
                 style = 0;
+                paint = 0;
             }
             public StructureTile(ushort type, StructureTilePlacementType placementType) {
                 this.type = type;
                 this.placementType = placementType;
                 slopeType = SlopeID.None;
                 style = 0;
+                paint = 0;
             }
             /// <param name="slopeType">5 is half-brick</param>
-            public StructureTile(ushort type, StructureTilePlacementType placementType, byte slopeType) {
-                this.type = type;
-                this.placementType = placementType;
-                this.slopeType = slopeType;
-                style = 0;
-            }
-            /// <param name="slopeType">5 is half-brick</param>
-            public StructureTile(ushort type, StructureTilePlacementType placementType, byte slopeType, int style) {
+            public StructureTile(ushort type, StructureTilePlacementType placementType, byte slopeType = 0, int style = 0, byte paint = 0) {
                 this.type = type;
                 this.placementType = placementType;
                 this.slopeType = slopeType;
                 this.style = style;
+                this.paint = paint;
             }
         }
 	}
