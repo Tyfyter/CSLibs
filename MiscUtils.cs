@@ -13,5 +13,26 @@ namespace Tyfyter.Utils {
             }
             return o;
         }
+        public struct AccumulatingAverage {
+            double sum;
+            int count;
+            public void Add(double value) {
+                sum += value;
+                count++;
+            }
+            public static AccumulatingAverage Add(AccumulatingAverage average, double value) {
+                average.Add(value);
+                return average;
+            }
+            public static explicit operator double(AccumulatingAverage value) {
+                return value.sum / value.count;
+            }
+            public static explicit operator int(AccumulatingAverage value) {
+                return (int)(value.sum / value.count);
+            }
+            public static explicit operator string(AccumulatingAverage value) {
+                return $"{value.sum / value.count}";
+            }
+        }
 	}
 }

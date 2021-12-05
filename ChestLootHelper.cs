@@ -100,6 +100,9 @@ namespace Tyfyter.Utils {
 				goto cont;
 			}
             int i = actions.Length;
+            if (cache is null) {
+				return;
+            }
 			while(items.Count>0) {
 				random = cache.GetWeightedRandom();
 				lootType = random.Get();
