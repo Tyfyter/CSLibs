@@ -105,6 +105,9 @@ namespace Tyfyter.Utils {
                     currentChange = changedMultiTiles.Pop();
                     currentTile = Main.tile[currentChange.x, currentChange.y];
                     c = currentChange.tile;
+                    if ((c.placementType&ReplaceOld)!=0) {
+                        currentTile.active(false);
+                    }
                     if(TileObject.CanPlace(currentChange.x, currentChange.y, c.type, c.style, 1, out TileObject tileObject)) {
                         TileObject.Place(tileObject);
                         if(Main.tileContainer[c.type])createdChests.Enqueue(Chest.CreateChest(currentChange.x, currentChange.y-1));
