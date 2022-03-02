@@ -22,6 +22,9 @@ namespace Tyfyter.Utils {
 				}
 			}
 		}
+		public FungibleSet() {
+			Entries = new Dictionary<T, int>();
+		}
 		public FungibleSet(Dictionary<T, int> entries) {
 			Entries = entries;
 		}
