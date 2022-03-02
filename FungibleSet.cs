@@ -26,7 +26,10 @@ namespace Tyfyter.Utils {
 			Entries = entries;
 		}
 		public FungibleSet(IEnumerable<KeyValuePair<T, int>> entries) {
-			Entries = new Dictionary<T, int>((IDictionary<T, int>)entries);
+			Entries = new Dictionary<T, int>();
+			foreach (KeyValuePair<T, int> entry in entries) {
+				this[entry.Key] += entry.Value;
+			}
 		}
 		public int Total => Entries.Values.Sum();
 		public ICollection<T> Keys => Entries.Keys;
