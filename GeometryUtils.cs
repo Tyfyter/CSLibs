@@ -1,5 +1,6 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
+using System.Runtime.InteropServices;
 using Terraria;
 
 namespace Tyfyter.Utils {
@@ -25,7 +26,8 @@ namespace Tyfyter.Utils {
         public PolarVec2 WithLength(float length) {
             return new PolarVec2(length, Theta);
         }
-        public static bool operator ==(PolarVec2 a, PolarVec2 b) {
+
+		public static bool operator ==(PolarVec2 a, PolarVec2 b) {
             return a.Theta == b.Theta && a.R == b.R;
         }
         public static bool operator !=(PolarVec2 a, PolarVec2 b) {
@@ -39,6 +41,17 @@ namespace Tyfyter.Utils {
         }
         public static PolarVec2 operator /(PolarVec2 a, float scalar) {
             return new PolarVec2(a.R/scalar, a.Theta);
+        }
+        public override bool Equals(object obj) {
+            return (obj is PolarVec2 other) && other == this;
+        }
+        public override int GetHashCode() {
+            unchecked {
+                return (R.GetHashCode() * 397) ^ Theta.GetHashCode();
+            }
+        }
+        public override string ToString() {
+            return $"{{r = {R}, θ = {Theta}}}";
         }
         public static PolarVec2 Zero => new PolarVec2();
         public static PolarVec2 UnitRight => new PolarVec2(1, 0);
@@ -66,6 +79,13 @@ namespace Tyfyter.Utils {
 			bool b1 = Vector2.Dot(new Vector2(point.X - b.X, point.Y - b.Y), new Vector2(b.Y - c.Y, c.X - b.X)) > 0;
 			bool b2 = Vector2.Dot(new Vector2(point.X - c.X, point.Y - c.Y), new Vector2(c.Y - a.Y, a.X - c.X)) > 0;
 			return (b0 == b1 && b1 == b2);
+		}
+        public (Vector2 min, Vector2 max) GetBounds() {
+            float minX = (int)Math.Min(Math.Min(a.X, b.X), c.X);
+            float minY = (int)Math.Min(Math.Min(a.Y, b.Y), c.Y);
+            float maxX = (int)Math.Max(Math.Max(a.X, b.X), c.X);
+            float maxY = (int)Math.Max(Math.Max(a.Y, b.Y), c.Y);
+            return (new Vector2(minX, minY), new Vector2(maxX, maxY));
 		}
 	}
     public static class GeometryUtils {
