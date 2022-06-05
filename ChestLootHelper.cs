@@ -55,8 +55,8 @@ namespace Tyfyter.Utils {
 			ChestLootCache cache;
 			for(int i = 0; i < Main.chest.Length; i++) {
 				chest = Main.chest[i];
-				if (chest != null && Main.tile[chest.x, chest.y].type == TileID.Containers){
-					cache = chestLoots[Main.tile[chest.x, chest.y].frameX/36];
+				if (chest != null && Main.tile[chest.x, chest.y].TileType == TileID.Containers){
+					cache = chestLoots[Main.tile[chest.x, chest.y].TileFrameX/36];
 					if(cache is null)continue;
 					lootType = chest.item[0].type;
 					cache.AddLoot(lootType, i);

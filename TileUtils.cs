@@ -5,14 +5,14 @@ using Terraria.ModLoader;
 namespace Tyfyter.Utils {
 	public static class TileUtils {
 		public static int GetTileDrop(this Tile tile) {
-			if (!tile.active()) {
+			if (!tile.HasTile) {
 				return -1;
 			}
-			if (tile.type >= TileID.Count) {
-				return ModContent.GetModTile(tile.type).drop;
+			if (tile.TileType >= TileID.Count) {
+				return ModContent.GetModTile(tile.TileType).ItemDrop;
 			}
 			int wood = -1;
-			switch (tile.type) {
+			switch (tile.TileType) {
 				case 0:
 				case 2:
 				case 109:
@@ -108,14 +108,14 @@ namespace Tyfyter.Utils {
 					wood = 283;
 				break;
 				case 227:
-					int num21 = tile.frameX / 34;
+					int num21 = tile.TileFrameX / 34;
 					wood = 1107 + num21;
 					if (num21 >= 8 && num21 <= 11) {
 						wood = 3385 + num21 - 8;
 					}
 				break;
 				case 4:
-					int num22 = tile.frameY / 22;
+					int num22 = tile.TileFrameY / 22;
 					switch (num22) {
 						case 0:
 						wood = 8;
@@ -150,7 +150,7 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 239:
-					int num23 = tile.frameX / 18;
+					int num23 = tile.TileFrameX / 18;
 					if (num23 == 0) {
 						wood = 20;
 					}
@@ -222,7 +222,7 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 380:
-					int num24 = tile.frameY / 18;
+					int num24 = tile.TileFrameY / 18;
 					wood = 3215 + num24;
 				break;
 				case 442:
@@ -271,7 +271,7 @@ namespace Tyfyter.Utils {
 				case 259:
 				case 260:
 				case 261:
-					wood = 1970 + tile.type - 255;
+					wood = 1970 + tile.TileType - 255;
 				break;
 				case 262:
 				case 263:
@@ -280,10 +280,10 @@ namespace Tyfyter.Utils {
 				case 266:
 				case 267:
 				case 268:
-					wood = 1970 + tile.type - 262;
+					wood = 1970 + tile.TileType - 262;
 				break;
 				case 324:
-					switch (tile.frameY / 22) {
+					switch (tile.TileFrameY / 22) {
 						case 0:
 						wood = 2625;
 						break;
@@ -299,7 +299,7 @@ namespace Tyfyter.Utils {
 					wood = 3610;
 				break;
 				case 419:
-					switch (tile.frameX / 18) {
+					switch (tile.TileFrameX / 18) {
 						case 0:
 						wood = 3602;
 						break;
@@ -312,7 +312,7 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 420:
-					switch (tile.frameY / 18) {
+					switch (tile.TileFrameY / 18) {
 						case 0:
 						wood = 3603;
 						break;
@@ -601,7 +601,7 @@ namespace Tyfyter.Utils {
 					wood = 767;
 				break;
 				case 178:
-					switch (tile.frameX / 18) {
+					switch (tile.TileFrameX / 18) {
 						case 0:
 						wood = 181;
 						break;
@@ -626,16 +626,16 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 149:
-					if (tile.frameX == 0 || tile.frameX == 54) {
+					if (tile.TileFrameX == 0 || tile.TileFrameX == 54) {
 						wood = 596;
-					} else if (tile.frameX == 18 || tile.frameX == 72) {
+					} else if (tile.TileFrameX == 18 || tile.TileFrameX == 72) {
 						wood = 597;
-					} else if (tile.frameX == 36 || tile.frameX == 90) {
+					} else if (tile.TileFrameX == 36 || tile.TileFrameX == 90) {
 						wood = 598;
 					}
 				break;
 				case 13:
-					switch (tile.frameX / 18) {
+					switch (tile.TileFrameX / 18) {
 						case 1:
 						wood = 28;
 						break;
@@ -666,7 +666,7 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 19:
-					int num31 = tile.frameY / 18;
+					int num31 = tile.TileFrameY / 18;
 					switch (num31) {
 						case 0:
 						wood = 94;
@@ -787,7 +787,7 @@ namespace Tyfyter.Utils {
 					wood = 911;
 				break;
 				case 33:
-					int num32 = tile.frameY / 22;
+					int num32 = tile.TileFrameY / 22;
 					wood = 105;
 					switch (num32) {
 						case 1:
@@ -1002,7 +1002,7 @@ namespace Tyfyter.Utils {
 					wood = 3234;
 				break;
 				case 137:
-					int num33 = tile.frameY / 18;
+					int num33 = tile.TileFrameY / 18;
 					if (num33 == 0) {
 						wood = 539;
 					}
@@ -1071,7 +1071,7 @@ namespace Tyfyter.Utils {
 					wood = 937;
 				break;
 				case 135:
-					int num34 = tile.frameY / 18;
+					int num34 = tile.TileFrameY / 18;
 					if (num34 == 0) {
 						wood = 529;
 					}
@@ -1095,13 +1095,13 @@ namespace Tyfyter.Utils {
 					}
 				break;
 				case 144:
-					if (tile.frameX == 0) {
+					if (tile.TileFrameX == 0) {
 						wood = 583;
 					}
-					if (tile.frameX == 18) {
+					if (tile.TileFrameX == 18) {
 						wood = 584;
 					}
-					if (tile.frameX == 36) {
+					if (tile.TileFrameX == 36) {
 						wood = 585;
 					}
 				break;
@@ -1113,11 +1113,11 @@ namespace Tyfyter.Utils {
 				break;
 				case 61:
 				case 74:
-					if (tile.frameX == 144 && tile.type == 61) {
+					if (tile.TileFrameX == 144 && tile.TileType == 61) {
 						wood = 331;
-					} else if (tile.frameX == 162 && tile.type == 61) {
+					} else if (tile.TileFrameX == 162 && tile.TileType == 61) {
 						wood = 223;
-					} else if (tile.frameX >= 108 && tile.frameX <= 126 && tile.type == 61 && WorldGen.genRand.Next(20) == 0) {
+					} else if (tile.TileFrameX >= 108 && tile.TileFrameX <= 126 && tile.TileType == 61 && WorldGen.genRand.Next(20) == 0) {
 						wood = 208;
 					} else if (WorldGen.genRand.Next(100) == 0) {
 						wood = 195;
@@ -1140,10 +1140,10 @@ namespace Tyfyter.Utils {
 				case 66:
 				case 67:
 				case 68:
-					wood = tile.type - 63 + 177;
+					wood = tile.TileType - 63 + 177;
 				break;
 				case 50:
-					wood = ((tile.frameX != 90) ? 149 : 165);
+					wood = ((tile.TileFrameX != 90) ? 149 : 165);
 				break;
 				case 321:
 					wood = 2503;
