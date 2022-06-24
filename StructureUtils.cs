@@ -46,21 +46,21 @@ namespace Tyfyter.Utils {
                             goto invalidPosition;
                         }
                         currentTile = Main.tile[i1, j1];
-                        if(currentTile is null)goto invalidPosition;
+                        //if(currentTile is null)goto invalidPosition;
                         switch(c.placementType & (OldHandling|Deactivate)) {
                             case RequiredTile:
-                            if(currentTile.active())goto invalidPosition;
+                            if(currentTile.HasTile)goto invalidPosition;
                             break;
                             case RequiredTile|Deactivate:
                             case ReplaceOld:
                             case ReplaceOld|Deactivate:
-                            if(currentTile.active()&&(!TileID.Sets.CanBeClearedDuringGeneration[currentTile.type]||Main.tileContainer[currentTile.type]))goto invalidPosition;
+                            if(currentTile.HasTile&&(!TileID.Sets.CanBeClearedDuringGeneration[currentTile.TileType] ||Main.tileContainer[currentTile.TileType]))goto invalidPosition;
                             break;
                             case OptionalTile:
-                            if(currentTile.active())continue;
+                            if(currentTile.HasTile)continue;
                             break;
                             case OptionalTile|Deactivate:
-                            if(!currentTile.active()||!TileID.Sets.CanBeClearedDuringGeneration[currentTile.type]||Main.tileContainer[currentTile.type])continue;
+                            if(!currentTile.HasTile||!TileID.Sets.CanBeClearedDuringGeneration[currentTile.TileType]||Main.tileContainer[currentTile.TileType])continue;
                             break;
                         }
                         if((c.placementType&MultiTile) == 0) {
@@ -82,14 +82,22 @@ namespace Tyfyter.Utils {
                     currentTile = Main.tile[currentChange.x, currentChange.y];
                     c = currentChange.tile;
                     if((c.placementType & Deactivate) == 0) {
-                        currentTile.active(true);
+                        currentTile.HasTile = true;
+                        //currentTile.TileType = c.type;
                         currentTile.ResetToType(c.type);
-                        if(c.slopeType <= 4) currentTile.slope(c.slopeType);
-                        if(c.slopeType == 5) currentTile.halfBrick();
+                        //currentTile.BlockType = c.blockType;
+                        // this is necessary because Tile.BlockType sets blocks to types which don't exist, like 1/2 tile offset slopes
+                        if (c.blockType == BlockType.HalfBlock) {
+                            currentTile.IsHalfBlock = true;
+						} else if(c.blockType == BlockType.Solid) {
+                            currentTile.Slope = SlopeType.Solid;
+						} else {
+                            currentTile.Slope = (SlopeType)(c.blockType - 1);
+                        }
                         _setLiquid(currentTile, c.placementType);
-                        if(c.paint!=0)currentTile.color(c.paint);
+                        if (c.paint != 0) currentTile.TileColor = c.paint;
                     } else {
-                        currentTile.active(false);
+                        currentTile.HasTile = false;
                         _setLiquid(currentTile, c.placementType);
                     }
                     //if(frame)try {
@@ -106,7 +114,7 @@ namespace Tyfyter.Utils {
                     currentTile = Main.tile[currentChange.x, currentChange.y];
                     c = currentChange.tile;
                     if ((c.placementType&ReplaceOld)!=0) {
-                        currentTile.active(false);
+                        currentTile.HasTile = false;
                     }
                     if(TileObject.CanPlace(currentChange.x, currentChange.y, c.type, c.style, 1, out TileObject tileObject)) {
                         TileObject.Place(tileObject);
@@ -118,19 +126,19 @@ namespace Tyfyter.Utils {
             static void _setLiquid(Tile tile, StructureTilePlacementType liquid) {
                 switch(liquid&(Honey|NoLiquid)) {
                     case Water:
-                    tile.liquidType(Tile.Liquid_Water);
-                    tile.liquid = 255;
+                    tile.LiquidType = LiquidID.Water;
+                    tile.LiquidAmount = 255;
                     break;
                     case Lava:
-                    tile.liquidType(Tile.Liquid_Lava);
-                    tile.liquid = 255;
+                    tile.LiquidType = LiquidID.Lava;
+                    tile.LiquidAmount = 255;
                     break;
                     case Honey:
-                    tile.liquidType(Tile.Liquid_Honey);
-                    tile.liquid = 255;
+                    tile.LiquidType = LiquidID.Honey;
+                    tile.LiquidAmount = 255;
                     break;
                     case NoLiquid:
-                    tile.liquid = 0;
+                    tile.LiquidAmount = 0;
                     break;
                 }
             }
@@ -154,28 +162,28 @@ namespace Tyfyter.Utils {
         public struct StructureTile {
             public readonly ushort type;
             public readonly StructureTilePlacementType placementType;
-            public readonly byte slopeType;
+            public readonly BlockType blockType;
             public readonly int style;
             public readonly byte paint;
             public StructureTile(ushort type) {
                 this.type = type;
                 placementType = RequiredTile;
-                slopeType = SlopeID.None;
+                blockType = BlockType.Solid;
                 style = 0;
                 paint = 0;
             }
             public StructureTile(ushort type, StructureTilePlacementType placementType) {
                 this.type = type;
                 this.placementType = placementType;
-                slopeType = SlopeID.None;
+                blockType = BlockType.Solid;
                 style = 0;
                 paint = 0;
             }
             /// <param name="slopeType">5 is half-brick</param>
-            public StructureTile(ushort type, StructureTilePlacementType placementType, byte slopeType = 0, int style = 0, byte paint = 0) {
+            public StructureTile(ushort type, StructureTilePlacementType placementType, BlockType slopeType = 0, int style = 0, byte paint = 0) {
                 this.type = type;
                 this.placementType = placementType;
-                this.slopeType = slopeType;
+                this.blockType = slopeType;
                 this.style = style;
                 this.paint = paint;
             }

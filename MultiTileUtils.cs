@@ -9,15 +9,15 @@ namespace Tyfyter.Utils {
             moid.Logger.Info("yerlp");
         }
         public static Point GetRelativeOriginCoordinates(TileObjectData objectData, Tile tile) {
-            int frameX = tile.frameX % objectData.CoordinateFullWidth;
+            int frameX = tile.TileFrameX % objectData.CoordinateFullWidth;
             int frameWidth = objectData.CoordinateWidth + objectData.CoordinatePadding;
             int frameY = 0;
             if(objectData.Height != 1) {
-                for(int y = tile.frameY; y > 0; y -= objectData.CoordinateHeights[frameY] + objectData.CoordinatePadding) {
+                for(int y = tile.TileFrameY; y > 0; y -= objectData.CoordinateHeights[frameY] + objectData.CoordinatePadding) {
                     frameY++;
                     frameY %= objectData.Height;
                     if(frameY == 0 && !objectData.StyleHorizontal) {
-                        objectData = TileObjectData.GetTileData(tile.type, frameY/objectData.Height);
+                        objectData = TileObjectData.GetTileData(tile.TileType, frameY/objectData.Height);
                         y -= objectData.CoordinatePadding;
                     }
                 }
@@ -36,7 +36,7 @@ namespace Tyfyter.Utils {
 
         public static int GetStyleWidth(ushort type) {
             TileObjectData objectData = TileObjectData.GetTileData(type, 0);
-            return objectData.CoordinateFullWidth;
+            return objectData?.CoordinateFullWidth??0;
         }
         public static void AggressivelyPlace(Point Coords, ushort type, int style) {
             TileObjectData objectData = TileObjectData.GetTileData(type, style);
@@ -48,8 +48,8 @@ namespace Tyfyter.Utils {
                 for(int x = 0; x < objectData.Width; x++) {
                     tile = Main.tile[Coords.X + x, Coords.Y + y];
                     tile.ResetToType(type);
-                    tile.frameX = (short)frameX;
-                    tile.frameY = (short)frameY;
+                    tile.TileFrameX = (short)frameX;
+                    tile.TileFrameY = (short)frameY;
                     frameX+=objectData.CoordinateWidth + objectData.CoordinatePadding;
                 }
                 frameY+=objectData.CoordinateHeights[y] + objectData.CoordinatePadding;

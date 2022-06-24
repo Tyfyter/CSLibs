@@ -1,9 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 
 namespace Tyfyter.Utils {
 	public static class TileUtils {
+		public static void SetTileData(this Tile tile, TileData data) {
+			tile.Get<TileTypeData>() = data.TileTypeData;
+			tile.Get<WallTypeData>() = data.WallTypeData;
+			tile.Get<TileWallWireStateData>() = data.TileWallWireStateData;
+			tile.Get<LiquidData>() = data.LiquidData;
+		}
+		public static void SetSlope(this TileWallWireStateData tile, SlopeType slopeType) {
+			tile.Slope = slopeType;
+		}
 		public static int GetTileDrop(this Tile tile) {
 			if (!tile.HasTile) {
 				return -1;
@@ -1117,9 +1131,9 @@ namespace Tyfyter.Utils {
 						wood = 331;
 					} else if (tile.TileFrameX == 162 && tile.TileType == 61) {
 						wood = 223;
-					} else if (tile.TileFrameX >= 108 && tile.TileFrameX <= 126 && tile.TileType == 61 && WorldGen.genRand.Next(20) == 0) {
+					} else if (tile.TileFrameX >= 108 && tile.TileFrameX <= 126 && tile.TileType == 61 && WorldGen.genRand.NextBool(20)) {
 						wood = 208;
-					} else if (WorldGen.genRand.Next(100) == 0) {
+					} else if (WorldGen.genRand.NextBool(100)) {
 						wood = 195;
 					}
 				break;
@@ -1128,9 +1142,9 @@ namespace Tyfyter.Utils {
 				break;
 				case 71:
 				case 72:
-					if (WorldGen.genRand.Next(50) == 0) {
+					if (WorldGen.genRand.NextBool(50)) {
 						wood = 194;
-					} else if (WorldGen.genRand.Next(2) == 0) {
+					} else if (WorldGen.genRand.NextBool(2)) {
 						wood = 183;
 					}
 				break;
@@ -1153,6 +1167,25 @@ namespace Tyfyter.Utils {
 				break;
 			}
 			return wood;
+		}
+		public class TileData {
+			public TileTypeData tileTypeData;
+			public WallTypeData wallTypeData;
+			public TileWallWireStateData tileWallWireStateData;
+			public LiquidData liquidData;
+			public ref TileTypeData TileTypeData => ref tileTypeData;
+			public ref WallTypeData WallTypeData => ref wallTypeData;
+			public ref TileWallWireStateData TileWallWireStateData => ref tileWallWireStateData;
+			public ref LiquidData LiquidData => ref liquidData;
+
+			public static implicit operator TileData(Tile tile) {
+				return new() {
+					TileTypeData = tile.Get<TileTypeData>(),
+					WallTypeData = tile.Get<WallTypeData>(),
+					TileWallWireStateData = tile.Get<TileWallWireStateData>(),
+					LiquidData = tile.Get<LiquidData>()
+				};
+			}
 		}
 	}
 }
