@@ -1,3 +1,5 @@
+using Terraria;
+
 namespace Tyfyter.Utils {
 	public static class MiscUtils {
         public static T[] BuildArray<T>(int length, params int[] nonNullIndeces) where T : new() {
@@ -34,5 +36,5 @@ namespace Tyfyter.Utils {
                 return $"{value.sum / value.count}";
             }
         }
-	}
+    }
 }
