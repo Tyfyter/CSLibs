@@ -6,12 +6,12 @@ using System.Diagnostics;
 using System.Collections;
 
 namespace Tyfyter.Utils {
-    [DebuggerDisplay("Count = {Count}, Total = {Total}")]
-    public class FungibleSet<T> : IDictionary<T, int> {
-        public readonly EqualityComparer<T> KeyComparer;
-        public readonly bool AddOnSet = false;
+	[DebuggerDisplay("Count = {Count}, Total = {Total}")]
+	public class FungibleSet<T> : IDictionary<T, int> {
+		public readonly EqualityComparer<T> KeyComparer;
+		public readonly bool AddOnSet = false;
 
-        public Dictionary<T, int> Entries { get; private set; }
+		public Dictionary<T, int> Entries { get; private set; }
 		public int this[T key] {
 			get => Entries.ContainsKey(key) ? Entries[key] : 0;
 			set {
