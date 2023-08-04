@@ -21,11 +21,11 @@ namespace Tyfyter.Utils {
 		}
 		public record SpriteBatchState(SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix transformMatrix = default);
 		private static FastFieldInfo<SpriteBatch, SpriteSortMode> _sortMode;
-		internal static FastFieldInfo<SpriteBatch, SpriteSortMode> sortMode => _sortMode ??= new("sortMode", BindingFlags.NonPublic | BindingFlags.Instance);
+		internal static FastFieldInfo<SpriteBatch, SpriteSortMode> sortMode => _sortMode ??= new("sortMode", BindingFlags.NonPublic);
 		private static FastFieldInfo<SpriteBatch, Effect> _customEffect;
-		internal static FastFieldInfo<SpriteBatch, Effect> customEffect => _customEffect ??= new("customEffect", BindingFlags.NonPublic | BindingFlags.Instance);
+		internal static FastFieldInfo<SpriteBatch, Effect> customEffect => _customEffect ??= new("customEffect", BindingFlags.NonPublic);
 		private static FastFieldInfo<SpriteBatch, Matrix> _transformMatrix;
-		internal static FastFieldInfo<SpriteBatch, Matrix> transformMatrix => _transformMatrix ??= new("transformMatrix", BindingFlags.NonPublic | BindingFlags.Instance);
+		internal static FastFieldInfo<SpriteBatch, Matrix> transformMatrix => _transformMatrix ??= new("transformMatrix", BindingFlags.NonPublic);
 		public static SpriteBatchState GetState(this SpriteBatch spriteBatch) {
 			return new SpriteBatchState(
 				sortMode.GetValue(spriteBatch),
@@ -42,9 +42,13 @@ namespace Tyfyter.Utils {
 			spriteBatch.Begin(sortMode, blendState ?? spriteBatchState.blendState, samplerState ?? spriteBatchState.samplerState, spriteBatchState.depthStencilState, rasterizerState ?? spriteBatchState.rasterizerState, effect ?? spriteBatchState.effect, transformMatrix ?? spriteBatchState.transformMatrix);
 		}
 		internal static FastFieldInfo<ArmorShaderData, Asset<Texture2D>> _uImage_Armor;
+		internal static FastFieldInfo<HairShaderData, Asset<Texture2D>> _uImage_Hair;
 		internal static FastFieldInfo<MiscShaderData, Asset<Texture2D>> _uImage_Misc;
 		public static void UseNonVanillaImage(this ArmorShaderData shaderData, Asset<Texture2D> texture) {
 			(_uImage_Armor ??= new("_uImage", BindingFlags.NonPublic, true)).SetValue(shaderData, texture);
+		}
+		public static void UseNonVanillaImage(this HairShaderData shaderData, Asset<Texture2D> texture) {
+			(_uImage_Hair ??= new("_uImage", BindingFlags.NonPublic, true)).SetValue(shaderData, texture);
 		}
 		public static void UseNonVanillaImage(this MiscShaderData shaderData, Asset<Texture2D> texture) {
 			(_uImage_Misc ??= new("_uImage", BindingFlags.NonPublic, true)).SetValue(shaderData, texture);
@@ -141,6 +145,50 @@ namespace Tyfyter.Utils {
 				throw new NotImplementedException();
 			}
 		}
+		public class BidirectionalDictionary<TKey, TValue> {
+			Dictionary<TKey, TValue> primary = new();
+			Dictionary<TValue, TKey> reverse = new();
+			public TValue this[TKey key] {
+				get => GetValue(key);
+				set {
+					RemoveKey(key);
+					Add(key, value);
+				}
+			}
+			public void SetValue(TValue value, TKey key) {
+				RemoveValue(value);
+				Add(key, value);
+			}
+			/// <exception cref="ArgumentException">An element with the same key or value already exists</exception>
+			public void Add(TKey key, TValue value) {
+				if (ContainsKey(key)) throw new ArgumentException($"An element with the key \"{key}\" already exists", nameof(key));
+				if (ContainsValue(value)) throw new ArgumentException($"An element with the value \"{value}\" already exists", nameof(value));
+				primary.Add(key, value);
+				reverse.Add(value, key);
+			}
+			public bool ContainsKey(TKey key) => primary.ContainsKey(key);
+			public bool ContainsValue(TValue value) => reverse.ContainsKey(value);
+			public TValue GetValue(TKey key) => primary[key];
+			public TKey GetKey(TValue value) => reverse[value];
+			public bool TryGetValue(TKey key, out TValue value) => primary.TryGetValue(key, out value);
+			public bool TryGetKey(TValue value, out TKey key) => reverse.TryGetValue(value, out key);
+			public bool RemoveKey(TKey key) {
+				if (TryGetValue(key, out TValue value)) {
+					primary.Remove(key);
+					reverse.Remove(value);
+					return true;
+				}
+				return false;
+			}
+			public bool RemoveValue(TValue value) {
+				if (TryGetKey(value, out TKey key)) {
+					reverse.Remove(value);
+					primary.Remove(key);
+					return true;
+				}
+				return false;
+			}
+		}
 		public struct PlayerShaderSet {
 			public int cHead;
 			public int cBody;
@@ -170,7 +218,7 @@ namespace Tyfyter.Utils {
 			public int cPet;
 			public int cLight;
 			public int cYorai;
-			public int cPortalbeStool;
+			public int cPortableStool;
 			public int cUnicornHorn;
 			public int cAngelHalo;
 			public int cBeard;
@@ -205,7 +253,7 @@ namespace Tyfyter.Utils {
 				cPet = player.cPet;
 				cLight = player.cLight;
 				cYorai = player.cYorai;
-				cPortalbeStool = player.cPortalbeStool;
+				cPortableStool = player.cPortableStool;
 				cUnicornHorn = player.cUnicornHorn;
 				cAngelHalo = player.cAngelHalo;
 				cBeard = player.cBeard;
@@ -241,7 +289,7 @@ namespace Tyfyter.Utils {
 				cPet = shader;
 				cLight = shader;
 				cYorai = shader;
-				cPortalbeStool = shader;
+				cPortableStool = shader;
 				cUnicornHorn = shader;
 				cAngelHalo = shader;
 				cBeard = shader;
@@ -277,7 +325,7 @@ namespace Tyfyter.Utils {
 				player.cPet = cPet;
 				player.cLight = cLight;
 				player.cYorai = cYorai;
-				player.cPortalbeStool = cPortalbeStool;
+				player.cPortableStool = cPortableStool;
 				player.cUnicornHorn = cUnicornHorn;
 				player.cAngelHalo = cAngelHalo;
 				player.cBeard = cBeard;
