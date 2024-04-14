@@ -132,5 +132,17 @@ namespace Tyfyter.Utils {
 		public static Vector2 Vec2FromPolar(float r, float theta) {
 			return new Vector2((float)(r * Math.Cos(theta)), (float)(r * Math.Sin(theta)));
 		}
+		public static float? AngleToTarget(Vector2 diff, float speed, float grav = 0.04f, bool high = false) {
+			float v2 = speed * speed;
+			float v4 = speed * speed * speed * speed;
+			grav = -grav;
+			float sqr = v4 - grav * (grav * diff.X * diff.X + 2 * diff.Y * v2);
+			if (sqr >= 0) {
+				sqr = MathF.Sqrt(sqr);
+				float offset = diff.X > 0 ? 0 : MathHelper.Pi;
+				return (high ? MathF.Atan((v2 + sqr) / (grav * diff.X)) : MathF.Atan((v2 - sqr) / (grav * diff.X))) + offset;
+			}
+			return null;
+		}
 	}
 }

@@ -7,11 +7,119 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Reflection.Emit;
 using Terraria;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader.IO;
 
 namespace Tyfyter.Utils {
+	public class FastFieldInfo<TParent, T> {
+		public readonly FieldInfo field;
+		Func<TParent, T> getter;
+		Action<TParent, T> setter;
+		public FastFieldInfo(string name, BindingFlags bindingFlags, bool init = false) {
+			field = typeof(TParent).GetField(name, bindingFlags | BindingFlags.Instance);
+			if (field is null) throw new ArgumentException($"could not find {name} in type {typeof(TParent)} with flags {bindingFlags.ToString()}");
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public FastFieldInfo(FieldInfo field, bool init = false) {
+			this.field = field;
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public T GetValue(TParent parent) {
+			return (getter ??= CreateGetter())(parent);
+		}
+		public void SetValue(TParent parent, T value) {
+			(setter ??= CreateSetter())(parent, value);
+		}
+		private Func<TParent, T> CreateGetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
+			DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(T), new Type[] { typeof(TParent) }, true);
+			ILGenerator gen = getterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Func<TParent, T>)getterMethod.CreateDelegate(typeof(Func<TParent, T>));
+		}
+		private Action<TParent, T> CreateSetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
+			DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[] { typeof(TParent), typeof(T) }, true);
+			ILGenerator gen = setterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Stfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Action<TParent, T>)setterMethod.CreateDelegate(typeof(Action<TParent, T>));
+		}
+	}
+	public class FastStaticFieldInfo<TParent, T> : FastStaticFieldInfo<T> {
+		public FastStaticFieldInfo(string name, BindingFlags bindingFlags, bool init = false) : base(typeof(TParent), name, bindingFlags, init) { }
+	}
+	public class FastStaticFieldInfo<T> {
+		public readonly FieldInfo field;
+		Func<T> getter;
+		Action<T> setter;
+		public FastStaticFieldInfo(Type type, string name, BindingFlags bindingFlags, bool init = false) {
+			field = type.GetField(name, bindingFlags | BindingFlags.Static);
+			if (field is null) throw new InvalidOperationException($"No such static field {name} exists");
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public FastStaticFieldInfo(FieldInfo field, bool init = false) {
+			if (!field.IsStatic) throw new InvalidOperationException($"field {field.Name} is not static");
+			this.field = field;
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public T GetValue() {
+			return (getter ??= CreateGetter())();
+		}
+		public void SetValue(T value) {
+			(setter ??= CreateSetter())(value);
+		}
+		private Func<T> CreateGetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
+			DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(T), new Type[] { }, true);
+			ILGenerator gen = getterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldsfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Func<T>)getterMethod.CreateDelegate(typeof(Func<T>));
+		}
+		private Action<T> CreateSetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
+			DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[] { typeof(T) }, true);
+			ILGenerator gen = setterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Stsfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Action<T>)setterMethod.CreateDelegate(typeof(Action<T>));
+		}
+		public static explicit operator T(FastStaticFieldInfo<T> fastFieldInfo) {
+			return fastFieldInfo.GetValue();
+		}
+	}
 	public static class MiscUtils {
 		public static void Unload() {
 			_sortMode = null;
