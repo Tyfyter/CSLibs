@@ -1,4 +1,3 @@
-using EpikV2;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -19,7 +18,7 @@ namespace Tyfyter.Utils {
 		Action<TParent, T> setter;
 		public FastFieldInfo(string name, BindingFlags bindingFlags, bool init = false) {
 			field = typeof(TParent).GetField(name, bindingFlags | BindingFlags.Instance);
-			if (field is null) throw new ArgumentException($"could not find {name} in type {typeof(TParent)} with flags {bindingFlags.ToString()}");
+			if (field is null) throw new ArgumentException($"could not find {name} in type {typeof(TParent)} with flags {bindingFlags}");
 			if (init) {
 				getter = CreateGetter();
 				setter = CreateSetter();
