@@ -63,9 +63,7 @@ namespace Tyfyter.Utils {
 			return (Action<TParent, T>)setterMethod.CreateDelegate(typeof(Action<TParent, T>));
 		}
 	}
-	public class FastStaticFieldInfo<TParent, T> : FastStaticFieldInfo<T> {
-		public FastStaticFieldInfo(string name, BindingFlags bindingFlags, bool init = false) : base(typeof(TParent), name, bindingFlags, init) { }
-	}
+	public class FastStaticFieldInfo<TParent, T>(string name, BindingFlags bindingFlags, bool init = false) : FastStaticFieldInfo<T>(typeof(TParent), name, bindingFlags, init) {}
 	public class FastStaticFieldInfo<T> {
 		public readonly FieldInfo field;
 		Func<T> getter;
@@ -172,27 +170,6 @@ namespace Tyfyter.Utils {
 				o[nonNullIndeces[i]] = new T();
 			}
 			return o;
-		}
-		public struct AccumulatingAverage {
-			double sum;
-			int count;
-			public void Add(double value) {
-				sum += value;
-				count++;
-			}
-			public static AccumulatingAverage Add(AccumulatingAverage average, double value) {
-				average.Add(value);
-				return average;
-			}
-			public static explicit operator double(AccumulatingAverage value) {
-				return value.sum / value.count;
-			}
-			public static explicit operator int(AccumulatingAverage value) {
-				return (int)(value.sum / value.count);
-			}
-			public static explicit operator string(AccumulatingAverage value) {
-				return $"{value.sum / value.count}";
-			}
 		}
 		/// <summary>
 		/// Multiplies a vector by a matrix
@@ -440,6 +417,10 @@ namespace Tyfyter.Utils {
 				player.cLeinShampoo = cLeinShampoo;
 
 			}
+		}
+		public static string FormatWith(string format, IDictionary<string, object> values) {
+			foreach (KeyValuePair<string, object> value in values) format = format.Replace($"{{{value.Key}}}", value.Value.ToString());
+			return format;
 		}
 	}
 }
