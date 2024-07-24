@@ -422,5 +422,14 @@ namespace Tyfyter.Utils {
 			foreach (KeyValuePair<string, object> value in values) format = format.Replace($"{{{value.Key}}}", value.Value.ToString());
 			return format;
 		}
+		public static void InsertOrdered<T>(this IList<T> list, T item, IComparer<T> comparer = null) {
+			comparer ??= Comparer<T>.Default;
+			for (int i = 0; i < list.Count + 1; i++) {
+				if (i == list.Count || comparer.Compare(list[i], item) > 0) {
+					list.Insert(i, item);
+					return;
+				}
+			}
+		}
 	}
 }
