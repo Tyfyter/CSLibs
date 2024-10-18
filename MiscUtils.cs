@@ -142,9 +142,17 @@ namespace Tyfyter.Utils {
 				transformMatrix.GetValue(spriteBatch)
 			);
 		}
-		public static void Restart(this SpriteBatch spriteBatch, SpriteBatchState spriteBatchState, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
+		public static void Restart(this SpriteBatch spriteBatch, SpriteBatchState spriteBatchState, SpriteSortMode? sortMode = null, BlendState blendState = null, SamplerState samplerState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
 			spriteBatch.End();
-			spriteBatch.Begin(sortMode, blendState ?? spriteBatchState.blendState, samplerState ?? spriteBatchState.samplerState, spriteBatchState.depthStencilState, rasterizerState ?? spriteBatchState.rasterizerState, effect ?? spriteBatchState.effect, transformMatrix ?? spriteBatchState.transformMatrix);
+			spriteBatch.Begin(
+				sortMode ?? spriteBatchState.sortMode,
+				blendState ?? spriteBatchState.blendState,
+				samplerState ?? spriteBatchState.samplerState,
+				spriteBatchState.depthStencilState,
+				rasterizerState ?? spriteBatchState.rasterizerState,
+				effect ?? spriteBatchState.effect,
+				transformMatrix ?? spriteBatchState.transformMatrix
+			);
 		}
 		internal static FastFieldInfo<ArmorShaderData, Asset<Texture2D>> _uImage_Armor;
 		internal static FastFieldInfo<HairShaderData, Asset<Texture2D>> _uImage_Hair;
